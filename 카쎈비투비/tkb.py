@@ -2,9 +2,10 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import time
-import pyperclip
+# import pyperclip
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -20,7 +21,9 @@ chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
 chrome_options.add_argument("--disable-gpu")
 
-d = webdriver.Chrome(ChromeDriverManager().install())
+
+service = Service(ChromeDriverManager().install())
+d = webdriver.Chrome(service=service)
 
 print('login')
 Main_URL = "https://tikerbell.co.kr/"
@@ -39,6 +42,7 @@ def login():
     time.sleep(0.5)
     # 로그인 폼 작성 및 제출
     d.find_element(By.NAME, "member_id").send_keys(username)
+    time.sleep(0.5)
     d.find_element(By.NAME, "member_passwd").send_keys(password)
     d.find_element(By.XPATH, "/html/body/div[4]/div/div/form/div/div/fieldset/a").click()
     
@@ -81,7 +85,7 @@ def category_id(URLS):
     d.get(Category_URL)
     # result = ss.get(Category_URL,headers={'User-Agent': 'Mozilla/5.0'})
     # soup = BeautifulSoup(result.text, "html.parser")
-    items = d.find_elements(By.CSS_SELECTOR,'#contents > div.xans-element-.xans-product.xans-product-normalpackage > div.xans-element-.xans-product.xans-product-listnormal.ec-base-product.normal > ul > li')
+    items = d.find_elements(By.CSS_SELECTOR,'#contents > div.xans-element-.xans-search.xans-search-result.ec-base-product.normal > ul> li')
     lens = len(items)
     print(lens)
     
@@ -123,7 +127,7 @@ def category_item(href):
       
 
       # 
-      center_element = d.find_element(By.CSS_SELECTOR,'#prdDetail > div.cont > center')
+      center_element = d.find_element(By.CSS_SELECTOR,'#prdDetail > div.cont')
       img_elements = center_element.find_elements(By.TAG_NAME, "img")
       detail_description = "".join(
           img.get_attribute("outerHTML") for i, img in enumerate(img_elements))

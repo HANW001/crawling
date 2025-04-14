@@ -2,7 +2,7 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import time
-import pyperclip
+# import pyperclip
 import os
 import pandas as pd
 
@@ -22,8 +22,10 @@ chrome_options.add_argument('--no-sandbox')
 chrome_options.add_argument('--disable-dev-shm-usage')
 chrome_options.add_argument("--disable-gpu");
 
-d = webdriver.Chrome(ChromeDriverManager().install())
 
+
+d = webdriver.Chrome(ChromeDriverManager().install())
+d.maximize_window()
 print('login')
 # Main_URL = "https://wapam.imweb.me/admin/"
 
@@ -73,35 +75,41 @@ def login2(mall_num,username,password):
 
 def category_id(URLS):
   
-  upload_folder = r"C:\Users\mosad\Desktop\파이썬\크롤링\아임웹_리뷰\reviews"
+  upload_folder = r"C:\Users\mosad\Desktop\github\crawling\아임웹_리뷰\reviews"
   
   d.get(URLS)
   files = [os.path.join(upload_folder, f) for f in os.listdir(upload_folder) if f.endswith('.xlsx')]
   print(len(files))
-  d.find_element(By.XPATH, "/html/body/div[2]/header[1]/div/div[2]/ul/scs-partials/a").click()
   time.sleep(0.25)
+  
+#   element = d.find_element(By.XPATH, "/html/body/div[2]/header[1]/div/div[2]/ul/scs-partials/main//div[1]/a[2]/div")
+#   element.click()
+  time.sleep(3.25)
   failed_files = []
   # 파일별 업로드 시도
-  for file in files:
-      max_retries = 3  # 최대 재시도 횟수
-      attempt = 0  # 현재 시도 횟수
-      
-      while attempt < max_retries:
-          try:
-              file_input = d.find_element(By.CSS_SELECTOR, '#prod_multi_add_upload > input[type=file]')
-              time.sleep(1)
-              file_input.send_keys(file)  # 파일 업로드
-              print(f"✅ {file} 업로드 완료")
-              time.sleep(3)  # 업로드 후 대기
-              break  # 성공하면 반복문 탈출
-          except Exception as e:
-              attempt += 1
-              print(f"⚠️ {file} 업로드 실패 (시도 {attempt}/{max_retries}): {e}")
-              time.sleep(2)  # 재시도 전 대기
-              
-              if attempt == max_retries:
-                  print(f"❌ {file} 업로드 실패 (최대 재시도 초과)")
-                  failed_files.append(file)  # 실패한 파일 저장
+  user_input = input("파일을 업로드하시겠습니까? (y 입력 시 실행): ")
+
+  if user_input.lower() == "y":
+    for file in files:
+        max_retries = 3  # 최대 재시도 횟수
+        attempt = 0  # 현재 시도 횟수
+        
+        while attempt < max_retries:
+            try:
+                file_input = d.find_element(By.CSS_SELECTOR, '#prod_multi_add_upload > input[type=file]')
+                time.sleep(1)
+                file_input.send_keys(file)  # 파일 업로드
+                print(f"✅ {file} 업로드 완료")
+                time.sleep(3)  # 업로드 후 대기
+                break  # 성공하면 반복문 탈출
+            except Exception as e:
+                attempt += 1
+                print(f"⚠️ {file} 업로드 실패 (시도 {attempt}/{max_retries}): {e}")
+                time.sleep(2)  # 재시도 전 대기
+                
+                if attempt == max_retries:
+                    print(f"❌ {file} 업로드 실패 (최대 재시도 초과)")
+                    failed_files.append(file)  # 실패한 파일 저장
 
   # 크롬 종료
   d.quit()
